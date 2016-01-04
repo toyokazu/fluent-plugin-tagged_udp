@@ -1,5 +1,5 @@
 module Fluent
-  class taggedUdpInput < Input
+  class TaggedUdpInput < Input
 
     # First, register the plugin. NAME is the name of this plugin
     # and identifies the plugin in the configuration file.
