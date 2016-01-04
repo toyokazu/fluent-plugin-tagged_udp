@@ -1,9 +1,9 @@
 module Fluent
-  class JsonUdpOutput < Output
+  class TaggedUdpOutput < Output
 
     # First, register the plugin. NAME is the name of this plugin
     # and identifies the plugin in the configuration file.
-    Fluent::Plugin.register_output('json_udp', self)
+    Fluent::Plugin.register_output('tagged_udp', self)
 
     config_param :host, :string, :default => '127.0.0.1'
     config_param :port, :integer, :default => 1883

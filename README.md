@@ -1,13 +1,13 @@
-# Fluent::Plugin::json_udp
+# Fluent::Plugin::tagged_udp
 
-Fluent plugin for JSON UDP Input/Output.
-This plugin is a special plugin to submit a message as a UDP packet. While fluentd's default UDP Input plugin supports to add a tag to the received message, this plugin support to add tag information as an attribute of JSON message.
+Fluent plugin for tagged UDP Input/Output.
+This plugin is a special plugin to submit a message as a UDP packet. While fluentd's default UDP Input plugin supports to add a tag to the received message, this plugin support to add tag name separated by a special character.
 
 ## Installation
 
 Add this line to your application's Gemfile:
 
-    gem 'fluent-plugin-json_udp'
+    gem 'fluent-plugin-tagged_udp'
 
 And then execute:
 
@@ -15,30 +15,35 @@ And then execute:
 
 Or install it yourself as:
 
-    $ gem install fluent-plugin-json_udp
+    $ gem install fluent-plugin-tagged_udp
 
 
 ## Usage
 
-fluent-plugin-json_udp provides UDP input/output function for fluentd.
+fluent-plugin-tagged_udp provides UDP input/output function for fluentd.
 
 Input plugin can be used via source directive.
 
 ```
 <source **>
-  type json_udp
+  type tagged_udp
   bind 127.0.0.1
   port 20001
+  format json # required
 </source>
 
 ```
+
+Optional parameters are as follows:
+
+- tag_sep: separator of tag name. default is "\t"
 
 Output Plugin can be used via match directive.
 
 ```
 
 <match **>
-  type json_udp
+  type tagged_udp
   host 127.0.0.1
   port 20001
 </match>
@@ -47,7 +52,7 @@ Output Plugin can be used via match directive.
 
 ## Contributing
 
-1. Fork it ( http://github.com/toyokazu/fluent-plugin-json_udp/fork )
+1. Fork it ( http://github.com/toyokazu/fluent-plugin-tagged_udp/fork )
 2. Create your feature branch (`git checkout -b my-new-feature`)
 3. Commit your changes (`git commit -am 'Add some feature'`)
 4. Push to the branch (`git push origin my-new-feature`)

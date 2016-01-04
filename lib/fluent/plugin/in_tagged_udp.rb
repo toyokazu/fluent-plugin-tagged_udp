@@ -1,18 +1,16 @@
 module Fluent
-  class JsonUdpInput < Input
+  class taggedUdpInput < Input
 
     # First, register the plugin. NAME is the name of this plugin
     # and identifies the plugin in the configuration file.
-    Fluent::Plugin.register_input('json_udp', self)
+    Fluent::Plugin.register_input('tagged_udp', self)
 
     config_param :bind, :string, :default => '127.0.0.1'
     config_param :port, :integer, :default => 1883
     config_param :tag_sep, :string, :default => "\t"
     config_param :format, :string, :default => 'json'
-    config_param :time_key, :string, :default => 'time'
-    config_param :time_format, :string, :default => nil
 
-    require 'eventmachine'
+    require 'socket'
 
     # Define `router` method of v0.12 to support v0.10 or earlier
     unless method_defined?(:router)
@@ -43,25 +41,24 @@ module Fluent
           $log.debug "Since time_key field is nil, Fluent::Engine.now is used."
           time = Fluent::Engine.now
         end
-        $log.debug "#{topic}, #{time}, #{record}"
         return [time, record]
-      end
-    end
-
-    class UDPHandler < EM::Connection
-      def receive_data(data)
-        $log.debug("Received #{data}")
-        tag, message = data.split(@tag_sep)
-        router.emit(tag, *parse(message))
       end
     end
 
     def start
       $log.debug "start udp server #{@bind}"
 
-      @thread = Thread.new do
-        EM.run do
-          EM.open_datagram_socket(@bind, @port, UDPHandler)
+      @thread = Thread.new(Thread.current) do |parent|
+        begin
+          Socket.udp_server_loop(@bind, @port) do |msg, msg_src|
+            $log.debug("Received #{msg}")
+            tag, message = msg.split(@tag_sep)
+            time, record = parse(message)
+            $log.debug "#{tag}, #{time}, #{record}"
+            router.emit(tag, time, record)
+          end
+        rescue StandardError => e
+          parent.raise(e)
         end
       end
     end
