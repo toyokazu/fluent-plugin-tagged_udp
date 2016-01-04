@@ -7,7 +7,7 @@ This plugin is a special plugin to submit a message as a UDP packet. While fluen
 
 Add this line to your application's Gemfile:
 
-    gem 'fluent-plugin-json-udp'
+    gem 'fluent-plugin-json_udp'
 
 And then execute:
 
@@ -15,12 +15,12 @@ And then execute:
 
 Or install it yourself as:
 
-    $ gem install fluent-plugin-json-udp
+    $ gem install fluent-plugin-json_udp
 
 
 ## Usage
 
-fluent-plugin-json-udp provides UDP input/output function for fluentd.
+fluent-plugin-json_udp provides UDP input/output function for fluentd.
 
 Input plugin can be used via source directive.
 
@@ -47,7 +47,7 @@ Output Plugin can be used via match directive.
 
 ## Contributing
 
-1. Fork it ( http://github.com/toyokazu/fluent-plugin-udp/fork )
+1. Fork it ( http://github.com/toyokazu/fluent-plugin-json_udp/fork )
 2. Create your feature branch (`git checkout -b my-new-feature`)
 3. Commit your changes (`git commit -am 'Add some feature'`)
 4. Push to the branch (`git push origin my-new-feature`)
