@@ -37,6 +37,9 @@ Input plugin can be used via source directive.
 Optional parameters are as follows:
 
 - tag_sep: separator of tag name. default is "\t"
+- recv_time: Add receive time to message in millisecond (ms) as integer for debug and performance/delay analysis
+- recv_time_key: An attribute of recv_time
+
 
 Output Plugin can be used via match directive.
 
@@ -49,6 +52,12 @@ Output Plugin can be used via match directive.
 </match>
 
 ```
+
+Optional parameters are as follows:
+
+- tag_sep: separator of tag name. default is "\t"
+- send_time: Add send time to message in millisecond (ms) as integer for debug and performance/delay analysis
+- send_time_key: An attribute of recv_time
 
 ## Contributing
 

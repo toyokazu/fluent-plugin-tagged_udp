@@ -9,6 +9,8 @@ module Fluent
     config_param :port, :integer, :default => 1883
     config_param :tag_sep, :string, :default => "\t"
     config_param :format, :string, :default => 'json'
+    config_param :recv_time, :bool, :default => false
+    config_param :recv_time_key, :string, :default => "recv_time"
 
     require 'socket'
 
@@ -22,16 +24,11 @@ module Fluent
     # If the configuration is invalid, raise Fluent::ConfigError.
     def configure(conf)
       super
-
-      # You can also refer raw parameter via conf[name].
-      @bind ||= conf['bind']
-      @port ||= conf['port']
-      @tag_sep ||= conf['tag_sep']
       configure_parser(conf)
     end
 
     def configure_parser(conf)
-      @parser = Plugin.new_parser(conf['format'])
+      @parser = Plugin.new_parser(@format)
       @parser.configure(conf)
     end
 
@@ -45,20 +42,31 @@ module Fluent
       end
     end
 
+    def add_recv_time(record)
+      if @recv_time
+        # recv_time is recorded in ms
+        record.merge({@recv_time_key => Time.now.instance_eval { self.to_i * 1000 + (usec/1000) }})
+      else
+        record
+      end
+    end
+
     def start
       $log.debug "start udp server #{@bind}"
 
       @thread = Thread.new(Thread.current) do |parent|
-        begin
-          Socket.udp_server_loop(@bind, @port) do |msg, msg_src|
-            $log.debug("Received #{msg}")
-            tag, message = msg.split(@tag_sep)
-            time, record = parse(message)
-            $log.debug "#{tag}, #{time}, #{record}"
-            router.emit(tag, time, record)
+        while (true)
+          begin
+            Socket.udp_server_loop(@bind, @port) do |msg, msg_src|
+              $log.debug("Received #{msg}")
+              tag, message = msg.split(@tag_sep)
+              time, record = parse(message)
+              $log.debug "#{tag}, #{time}, #{add_recv_time(record)}"
+              router.emit(tag, time, add_recv_time(record))
+            end
+          rescue StandardError => e
+            $log.debug("In udp_server_loop, #{e.class}: #{e.message}")
           end
-        rescue StandardError => e
-          parent.raise(e)
         end
       end
     end

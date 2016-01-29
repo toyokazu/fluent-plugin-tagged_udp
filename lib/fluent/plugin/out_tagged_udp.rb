@@ -10,6 +10,8 @@ module Fluent
     config_param :tag_sep, :string, :default => "\t"
     config_param :time_key, :string, :default => 'time'
     config_param :time_format, :string, :default => nil
+    config_param :send_time, :bool, :default => false
+    config_param :send_time_key, :string, :default => "send_time"
 
     require 'socket'
 
@@ -18,11 +20,6 @@ module Fluent
     # If the configuration is invalid, raise Fluent::ConfigError.
     def configure(conf)
       super
-
-      # You can also refer raw parameter via conf[name].
-      @host ||= conf['host']
-      @port ||= conf['port']
-      @tag_sep ||= conf['tag_sep']
       @socket = UDPSocket.new
     end
 
@@ -48,14 +45,23 @@ module Fluent
       end
     end
 
+    def add_send_time(record)
+      if @send_time
+        # send_time is recorded in ms
+        record.merge({@send_time_key => Time.now.instance_eval { self.to_i * 1000 + (usec/1000) }})
+      else
+        record
+      end
+    end
+
     def emit(tag, es, chain)
       begin
         es.each {|time,record|
-          $log.debug "#{tag}, #{format_time(time)}, #{record}"
+          $log.debug "#{tag}, #{format_time(time)}, #{add_send_time(record)}"
           @socket.send(
             # tag is inserted into the head of the message
-            "#{tag}#{@tag_sep}#{record.merge(timestamp_hash(time)).to_json}",
-            Socket::MSG_EOR, @host, @port
+            "#{tag}#{@tag_sep}#{add_send_time(record).merge(timestamp_hash(time)).to_json}",
+            0, @host, @port
           )
         }
         $log.flush
