@@ -1,7 +1,8 @@
 # Fluent::Plugin::tagged_udp
 
 Fluent plugin for tagged UDP Input/Output.
-This plugin is a special plugin to submit a message as a UDP packet. While fluentd's default UDP Input plugin supports to add a tag to the received message, this plugin support to add tag name separated by a special character.
+Fluentd checks the destination status by UDP packets and messages are transferred via TCP connection. While it is useful for the transfer using stable connection, for mobile environment, it is not suitable in some cases. Supporting UDP transfer provides us flexibility to implement sensor networks. fluent-plugin-tagged_udp is a special plugin to submit a message as a UDP packet. While fluentd's default UDP Input plugin supports to add a tag to the received message statically by configuration, it does not support to extract a tag from the received message. This plugin supports to add tag name into UDP packet which is separated by a special character and also supports to extract tag name from the UDP packet. Encryption/Decription is not supported in this plugin but [fluent-plugin-jwt-filter](https://github.com/toyokazu/fluent-plugin-jwt-filter) can be used to encrypt/decrypt messages using JSON Web Token technology.
+
 
 ## Installation
 
